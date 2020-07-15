@@ -18,18 +18,12 @@ class MainActivity : AppCompatActivity() {
         trueButton = findViewById(R.id.true_button)
         falseButton = findViewById(R.id.false_button)
 
-        trueButton.setOnClickListener {
-            doTrueClick(it)
+        trueButton.setOnClickListener { view: View ->
+            Toast.makeText(this, R.string.correct_toast, Toast.LENGTH_SHORT).show()
         }
 
         falseButton.setOnClickListener { view: View ->
             Toast.makeText(this, R.string.incorrect_toast, Toast.LENGTH_SHORT).show()
         }
     }
-
-    fun doTrueClick(view: View){
-        Toast.makeText(this, R.string.correct_toast, Toast.LENGTH_SHORT).show()
-    }
-
-
 }
