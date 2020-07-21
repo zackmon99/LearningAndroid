@@ -28,6 +28,8 @@ class MainActivity : AppCompatActivity() {
     )
 
     private var currentIndex = 0
+    private var correctAnswers = 0
+    private var questionsAnswered = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,10 +45,14 @@ class MainActivity : AppCompatActivity() {
 
         trueButton.setOnClickListener { view: View ->
             checkAnswer(true)
+            disableTrueFalseButtons()
+            questionBank[currentIndex].answered = true
         }
 
         falseButton.setOnClickListener { view: View ->
             checkAnswer(false)
+            disableTrueFalseButtons()
+            questionBank[currentIndex].answered = true
         }
 
         nextButton.setOnClickListener {
@@ -65,6 +71,16 @@ class MainActivity : AppCompatActivity() {
         }
 
         updateQuestion()
+    }
+
+    private fun disableTrueFalseButtons() {
+        trueButton.isEnabled = false
+        falseButton.isEnabled = false
+    }
+
+    private fun enableTrueFalseButtons() {
+        trueButton.isEnabled = true
+        falseButton.isEnabled = true
     }
 
     override fun onResume() {
@@ -95,9 +111,17 @@ class MainActivity : AppCompatActivity() {
     private fun updateQuestion() {
         val questionTextResId = questionBank[currentIndex].textRexId
         questionTextView.setText(questionTextResId)
+
+        if(questionBank[currentIndex].answered) {
+            disableTrueFalseButtons()
+        }
+        else {
+            enableTrueFalseButtons()
+        }
     }
 
     private fun checkAnswer(userAnswer: Boolean) {
+        questionsAnswered++
         val correctAnswer = questionBank[currentIndex].answer
 
         val messageResId = if (userAnswer == correctAnswer) {
@@ -107,6 +131,16 @@ class MainActivity : AppCompatActivity() {
             R.string.incorrect_toast
         }
 
+        if (userAnswer == correctAnswer) {
+            correctAnswers++
+        }
+
+
         Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show()
+
+        if (questionsAnswered == questionBank.size) {
+            val message = "You got " + ((correctAnswers.toDouble() / questionBank.size)*100).toInt() + "% correct!"
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+        }
     }
 }
