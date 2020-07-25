@@ -10,7 +10,6 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import androidx.fragment.app.Fragment
-import kotlinx.android.synthetic.main.fragment_crime.view.*
 
 class CrimeFragment : Fragment() {
 
