@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation"
+    app:startDestination="@id/navigation_crime_list">
+
+    <fragment
+        android:id="@+id/navigation_crime"
+        android:name="com.bignerdranch.android.criminalintent.CrimeFragment"
+        android:label="@string/crime_label"
+        tools:layout="@layout/fragment_crime">
+        <action
+            android:id="@+id/action_navigation_crime_to_navigation_crime_list"
+            app:destination="@id/navigation_crime_list">
+
+        </action>
+        <argument
+            android:name="crimeId"
+            app:argType="java.util.UUID" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_crime_list"
+        android:name="com.bignerdranch.android.criminalintent.CrimeListFragment"
+        android:label="@string/crime_list_label"
+        tools:layout="@layout/fragment_crime_list">
+        <action
+            android:id="@+id/action_navigation_crime_list_to_navigation_crime"
+            app:destination="@id/navigation_crime" >
+            <argument
+                android:name="crimeId"
+                app:argType="java.util.UUID" />
+        </action>
+    </fragment>
+
+
+
+</navigation>
