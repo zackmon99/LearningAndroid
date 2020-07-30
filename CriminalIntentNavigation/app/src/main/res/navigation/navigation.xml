@@ -18,6 +18,10 @@
         <argument
             android:name="crimeId"
             app:argType="java.util.UUID" />
+        <argument
+            android:name="listPosition"
+            app:argType="integer"
+            android:defaultValue="0" />
     </fragment>
 
     <fragment
@@ -27,11 +31,15 @@
         tools:layout="@layout/fragment_crime_list">
         <action
             android:id="@+id/action_navigation_crime_list_to_navigation_crime"
-            app:destination="@id/navigation_crime" >
+            app:destination="@id/navigation_crime">
             <argument
                 android:name="crimeId"
                 app:argType="java.util.UUID" />
         </action>
+        <argument
+            android:name="listPosition"
+            app:argType="integer"
+            android:defaultValue="0" />
     </fragment>
 
 

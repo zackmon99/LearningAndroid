@@ -10,15 +10,17 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import java.util.*
 
 private const val TAG = "CrimeFragment"
 private const val ARG_CRIME_ID = "crime_id"
 
-class CrimeFragment : Fragment() {
+class CrimeFragment : Fragment(), BackPressHandler {
 
     // Create variables
     private lateinit var crime: Crime
@@ -49,6 +51,7 @@ class CrimeFragment : Fragment() {
 
         // Use the loadCrime function change the crime in the view model
         crimeDetailViewModel.loadCrime(crimeId)
+
     }
 
     // We set up the UI here
@@ -125,6 +128,8 @@ class CrimeFragment : Fragment() {
         crimeDetailViewModel.saveCrime(crime)
     }
 
+
+
     // Code for updating the text fields and text box
     private fun updateUI() {
         titleField.setText(crime.title)
@@ -150,5 +155,13 @@ class CrimeFragment : Fragment() {
                 arguments = args
             }
         }
+    }
+
+    override fun onBackPressed(): Boolean {
+        val position = args.listPosition
+        val action = CrimeFragmentDirections.actionNavigationCrimeToNavigationCrimeList(position)
+        findNavController().navigate(action)
+
+        return true
     }
 }

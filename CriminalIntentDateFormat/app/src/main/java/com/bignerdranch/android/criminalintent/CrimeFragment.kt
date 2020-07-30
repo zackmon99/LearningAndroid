@@ -78,6 +78,7 @@ class CrimeFragment : Fragment() {
             viewLifecycleOwner,
             androidx.lifecycle.Observer { crime ->
                 crime?.let {
+                    Log.i(TAG, "crimeLiveData observed")
                     this.crime = crime
                     updateUI()
                 }

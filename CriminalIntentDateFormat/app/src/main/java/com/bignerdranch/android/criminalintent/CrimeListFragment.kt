@@ -10,8 +10,12 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import java.text.DateFormat
 import java.util.*
@@ -36,7 +40,26 @@ class CrimeListFragment: Fragment() {
     private lateinit var crimeRecyclerView: RecyclerView
     private var adapter: CrimeAdapter? = CrimeAdapter(emptyList())
 
+    // I propose that this is a better way of setting up the observer because setting the observer
+    // up in onViewCreated procs a change twice.  Once when onViewCreated is called for the initial
+    // call and once again after the data is updated.  Slight performance increase this way....
+    // HOWEVER, this observer isn't destroyed automatically when the view is destroyed because it is
+    // not linked to a lifecycle!  So this observer will always exist until it is explicitly
+    // removed.  I think this is fine, though as long as the recycler exists
+    /*
+    private val observer = Observer<List<Crime>> { crimes ->
+        crimes?.let {
+            Log.d(TAG, "Observer called!")
+            if (crimeRecyclerView != null) {
+                updateUI(crimes)
+            }
+        }
+    }
+
+     */
+
     private val crimeListViewModel: CrimeListViewModel by lazy {
+        Log.d(TAG, "crimeListViewModel by Lazy")
         val factory = CrimeListViewModelFactory()
         ViewModelProvider(this@CrimeListFragment, factory).get(CrimeListViewModel::class.java)
     }
@@ -48,6 +71,10 @@ class CrimeListFragment: Fragment() {
         // to this variable as Callbacks so the variable will know about the
         // onCrimeSelected() function
         callbacks = context as Callbacks?
+
+        // if running the way I propose above, we set up the observer onAttach, so it is only set up
+        // once
+        //crimeListViewModel.crimesListLiveData.observeForever(observer)
     }
 
     // newInstance() function declared here
@@ -84,14 +111,20 @@ class CrimeListFragment: Fragment() {
         // this point before the query is done.  So now if crimesListLiveData
         // changes, updateUI is called!
         // So, as soon as the query is finished, updateUI is called.
+        // Unfortunately, since this is running in onViewCreated, it will always be ran once when
+        // switching to this fragment, whether or not the data has changed.  Meaning it is ran TWICE
+        // when the data is actually changed.  I'm not a fan, but tying this to the fragment
+        // lifecycle means the observer is not running when the fragment is destroyed, which is
+        // nice.  Plus, the UI is not updated by virtue of using a ListAdapter as the adapter to
+        // recyclerview.  This will still have less performance, but probably not noticeable.
         crimeListViewModel.crimesListLiveData.observe(
-            viewLifecycleOwner,
-            androidx.lifecycle.Observer { crimes ->
-                crimes?.let {
-                    Log.i(TAG, "Got crimes ${crimes.size}")
-                    updateUI(crimes)
-                }
-            })
+                viewLifecycleOwner,
+        androidx.lifecycle.Observer { crimes ->
+            crimes?.let {
+                Log.i(TAG, "Observer CrimesList called")
+                updateUI(crimes)
+            }
+        })
     }
 
     override fun onDetach() {
@@ -102,9 +135,7 @@ class CrimeListFragment: Fragment() {
     }
 
     private fun updateUI(crimes: List<Crime>) {
-        adapter = CrimeAdapter(crimes)
-        // changing the adapter will update the RecyclerView
-        crimeRecyclerView.adapter = adapter
+        adapter?.submitList(crimes)
     }
 
     // Crime holder is the UI element of a single item in RecyclerView
@@ -147,7 +178,7 @@ class CrimeListFragment: Fragment() {
     }
 
     // This is the adapter to the RecyclerView.  This conducts the CrimeHolders
-    private inner class CrimeAdapter(var crimes: List<Crime>) : RecyclerView.Adapter<CrimeHolder>() {
+    private inner class CrimeAdapter(var crimes: List<Crime>) : ListAdapter<Crime, CrimeHolder>(CrimeItemDiffCallback()) {
 
         // Need to override this function. This creates the crimeHolder and returns it
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CrimeHolder {
@@ -159,14 +190,23 @@ class CrimeListFragment: Fragment() {
         }
 
         // Need this function to know how many CrimeHolders there will be
-        override fun getItemCount() = crimes.size
+        //override fun getItemCount() = crimes.size
 
         // Need this function to set the data at each position of the
         // RecyclerView
         override fun onBindViewHolder(holder: CrimeHolder, position: Int) {
-            val crime = crimes[position]
-            holder.bind(crime)
+            holder.bind(getItem(position))
         }
 
+    }
+
+    private inner class CrimeItemDiffCallback: DiffUtil.ItemCallback<Crime?>() {
+        override fun areItemsTheSame(oldItem: Crime, newItem: Crime): Boolean {
+            return oldItem == newItem
+        }
+
+        override fun areContentsTheSame(oldItem: Crime, newItem: Crime): Boolean {
+            return oldItem == newItem
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.bignerdranch.android.criminalintent
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.room.Room
 import com.bignerdranch.android.criminalintent.database.CrimeDatabase
@@ -9,6 +10,7 @@ import java.util.*
 import java.util.concurrent.Executors
 
 private const val DATABASE_NAME = "crime-database"
+private const val TAG = "CrimeRepository"
 
 // Private constructor here so only the companion object function initialize()
 // can create an object.  The companion object holds a crime repository.
@@ -33,7 +35,10 @@ class CrimeRepository private constructor(context: Context) {
     private val executor = Executors.newSingleThreadExecutor()
 
     // Use the repository to call the functions on the DAO
-    fun getCrimes(): LiveData<List<Crime>> = crimeDao.getCrimes()
+    fun getCrimes(): LiveData<List<Crime>> {
+        Log.d(TAG, "getCrimes Called")
+        return crimeDao.getCrimes()
+    }
 
     fun getCrime(id: UUID): LiveData<Crime?> = crimeDao.getCrime(id)
 

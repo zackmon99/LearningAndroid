@@ -12,7 +12,7 @@ class CrimeDetailViewModel: ViewModel() {
     private val crimeRepository = CrimeRepository.get()
     private val crimeIdLiveData = MutableLiveData<UUID>()
 
-    // We need a 'transformation' here.  Transformations set up a trigger-response
+    // This is a transformation.  Transformations set up a trigger-response
     // relationship between two LiveData objects.  In this case, we set crimeIdLiveData
     // as the trigger.  The lambda function is the 'mapping' function whose input
     // is whatever crimeIdLiveData base type is (UUID).  It returns a LiveData object
@@ -20,9 +20,9 @@ class CrimeDetailViewModel: ViewModel() {
     // every time crimeIdLiveData is updated (The lambda function is ran every time
     // crimeIdLiveData is updated)
     // Why do it this way rather than just using crimeLiveData and having loadCrime()
-    // change crimeLiveData?  The answer is that we would be creating a new
-    // LiveData<Crime?> object to change it because crimeLiveData is NOT a
-    // MutableLiveData, so it CANNOT be changed that way.  If we made it so, we
+    // change crimeLiveData?  The answer is that you should
+    // not expose LiveData object directly.  As for why loadCrime
+    // doesn't just set crimeLiveData... I'm not sure. If we made it so, we
     // could do it that way, but we want crimeLiveData to be public so
     // so we can get the value and we don't
     // want it to be changed outside the class in that way, so we need to set up
@@ -37,6 +37,7 @@ class CrimeDetailViewModel: ViewModel() {
     // We call this to change crimeIdLiveData's value to trigger all that above
     fun loadCrime(crimeId: UUID) {
         crimeIdLiveData.value = crimeId
+        //crimeLiveData = crimeRepository.getCrime(crimeId)
     }
 
     // this calls updateCrime on the DAO

@@ -12,7 +12,9 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import java.text.DateFormat
 import java.util.*
@@ -35,11 +37,18 @@ class CrimeListFragment: Fragment() {
 
 
     private lateinit var crimeRecyclerView: RecyclerView
-    private var adapter: CrimeAdapter? = CrimeAdapter(emptyList())
+    private var position = 0
+
 
     private val crimeListViewModel: CrimeListViewModel by lazy {
         val factory = CrimeListViewModelFactory()
         ViewModelProvider(this@CrimeListFragment, factory).get(CrimeListViewModel::class.java)
+    }
+
+    private var adapter: CrimeAdapter? = CrimeAdapter(emptyList())
+
+    init {
+        Log.d(TAG, "INIT!!!")
     }
 
     override fun onAttach(context: Context) {
@@ -71,8 +80,10 @@ class CrimeListFragment: Fragment() {
         crimeRecyclerView.layoutManager = LinearLayoutManager(context)
         crimeRecyclerView.adapter = adapter
 
+
         return view
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -90,6 +101,7 @@ class CrimeListFragment: Fragment() {
             androidx.lifecycle.Observer { crimes ->
                 crimes?.let {
                     Log.i(TAG, "Got crimes ${crimes.size}")
+                    val layout: LinearLayoutManager = crimeRecyclerView.layoutManager as LinearLayoutManager
                     updateUI(crimes)
                 }
             })
@@ -103,14 +115,12 @@ class CrimeListFragment: Fragment() {
     }
 
     private fun updateUI(crimes: List<Crime>) {
-        adapter = CrimeAdapter(crimes)
-        // changing the adapter will update the RecyclerView
-        crimeRecyclerView.adapter = adapter
+        adapter?.submitList(crimes)
     }
 
     // Crime holder is the UI element of a single item in RecyclerView
     // Set up the Views here!
-    private inner class CrimeHolder(view: View): RecyclerView.ViewHolder(view), View.OnClickListener {
+    inner class CrimeHolder(view: View): RecyclerView.ViewHolder(view), View.OnClickListener {
         private lateinit var crime: Crime
 
         private val titleTextView: TextView = itemView.findViewById(R.id.crime_title)
@@ -144,13 +154,15 @@ class CrimeListFragment: Fragment() {
         // in this case, change the fragment (see MainActivity.onCrimeSelected()
         override fun onClick(v: View?) {
             //callbacks?.onCrimeSelected(crime.id)
-            val action = CrimeListFragmentDirections.actionNavigationCrimeListToNavigationCrime(crime.id)
+            val position = (crimeRecyclerView.layoutManager as LinearLayoutManager).findFirstCompletelyVisibleItemPosition()
+            val action = CrimeListFragmentDirections.actionNavigationCrimeListToNavigationCrime(crime.id, position)
             findNavController().navigate(action)
         }
     }
 
     // This is the adapter to the RecyclerView.  This conducts the CrimeHolders
-    private inner class CrimeAdapter(var crimes: List<Crime>) : RecyclerView.Adapter<CrimeHolder>() {
+    // This is the adapter to the RecyclerView.  This conducts the CrimeHolders
+    private inner class CrimeAdapter(var crimes: List<Crime>) : ListAdapter<Crime, CrimeHolder>(CrimeItemDiffCallback()) {
 
         // Need to override this function. This creates the crimeHolder and returns it
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CrimeHolder {
@@ -162,14 +174,23 @@ class CrimeListFragment: Fragment() {
         }
 
         // Need this function to know how many CrimeHolders there will be
-        override fun getItemCount() = crimes.size
+        //override fun getItemCount() = crimes.size
 
         // Need this function to set the data at each position of the
         // RecyclerView
         override fun onBindViewHolder(holder: CrimeHolder, position: Int) {
-            val crime = crimes[position]
-            holder.bind(crime)
+            holder.bind(getItem(position))
         }
 
+    }
+
+    private inner class CrimeItemDiffCallback: DiffUtil.ItemCallback<Crime?>() {
+        override fun areItemsTheSame(oldItem: Crime, newItem: Crime): Boolean {
+            return oldItem == newItem
+        }
+
+        override fun areContentsTheSame(oldItem: Crime, newItem: Crime): Boolean {
+            return oldItem == newItem
+        }
     }
 }
