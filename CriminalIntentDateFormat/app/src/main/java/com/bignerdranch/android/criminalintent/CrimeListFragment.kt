@@ -4,9 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
@@ -37,6 +35,9 @@ class CrimeListFragment: Fragment() {
 
     private lateinit var crimeRecyclerView: RecyclerView
     private var adapter: CrimeAdapter? = CrimeAdapter(emptyList())
+    private lateinit var noContentLayout: LinearLayout
+    private lateinit var noContentTextView: TextView
+    private lateinit var addCrimeNoContentButton: Button
 
     // I propose that this is a better way of setting up the observer because setting the observer
     // up in onViewCreated procs a change twice.  Once when onViewCreated is called for the initial
@@ -95,12 +96,16 @@ class CrimeListFragment: Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         Log.d(TAG, "onCreateViewCalled")
-        val view = inflater.inflate(R.layout.fragment_crime_list, container, false) as RecyclerView
+        val view = inflater.inflate(R.layout.fragment_crime_list, container, false) as FrameLayout
 
         // Set up RecyclerView with empty crime list
         crimeRecyclerView = view.findViewById(R.id.crime_recycler_view)
         crimeRecyclerView.layoutManager = LinearLayoutManager(context)
         crimeRecyclerView.adapter = adapter
+
+        noContentLayout = view.findViewById(R.id.no_content_layout)
+        noContentTextView = view.findViewById(R.id.no_content_text_view)
+        addCrimeNoContentButton = view.findViewById(R.id.add_crime_no_content_button)
 
         return view
     }
@@ -132,6 +137,15 @@ class CrimeListFragment: Fragment() {
         })
     }
 
+    override fun onStart() {
+        super.onStart()
+        addCrimeNoContentButton.setOnClickListener {
+            val crime = Crime()
+            crimeListViewModel.addCrime(crime)
+            callbacks?.onCrimeSelected(crime.id)
+        }
+    }
+
     override fun onDetach() {
         Log.d(TAG, "onDetach called")
         super.onDetach()
@@ -159,6 +173,14 @@ class CrimeListFragment: Fragment() {
 
     private fun updateUI(crimes: List<Crime>) {
         adapter?.submitList(crimes)
+        if (crimes.size == 0) {
+            crimeRecyclerView.visibility = View.GONE
+            noContentLayout.visibility = View.VISIBLE
+        }
+        else {
+            crimeRecyclerView.visibility = View.VISIBLE
+            noContentLayout.visibility = View.GONE
+        }
     }
 
     // Crime holder is the UI element of a single item in RecyclerView

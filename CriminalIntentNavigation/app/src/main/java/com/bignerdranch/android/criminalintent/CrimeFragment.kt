@@ -45,7 +45,7 @@ class CrimeFragment : Fragment(), BackPressHandler {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         crime = Crime()
-        // Get value from the fragment arguments
+        // Get value from navArgs
         val crimeId: UUID = args.crimeId
         Log.d(TAG, "args bundle crime ID: $crimeId")
 
