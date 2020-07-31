@@ -12,18 +12,24 @@ import android.widget.CheckBox
 import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import java.sql.Time
 import java.util.*
 
 private const val TAG = "CrimeFragment"
 private const val ARG_CRIME_ID = "crime_id"
+private const val DIALOG_DATE = "DialogDate"
+private const val DIALOG_TIME = "DialogTime"
+private const val REQUEST_DATE = 0
+private const val REQUEST_TIME = 1
 
-class CrimeFragment : Fragment() {
+class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
 
     // Create variables
     private lateinit var crime: Crime
     private lateinit var titleField: EditText
     private lateinit var dateButton: Button
     private lateinit var solvedCheckbox: CheckBox
+    private lateinit var timeButton: Button
 
     // Get a new or existing ViewModel that will persist
     // after fragment is destroyed
@@ -60,10 +66,7 @@ class CrimeFragment : Fragment() {
         titleField = view.findViewById(R.id.crime_title) as EditText
         dateButton = view.findViewById(R.id.crime_date) as Button
         solvedCheckbox = view.findViewById(R.id.crime_solved) as CheckBox
-
-        dateButton.apply {
-            isEnabled = false
-        }
+        timeButton = view.findViewById(R.id.crime_time) as Button
 
         return view
     }
@@ -112,6 +115,20 @@ class CrimeFragment : Fragment() {
                 crime.isSolved = isChecked
             }
         }
+
+        dateButton.setOnClickListener {
+            DatePickerFragment.newInstance(crime.date).apply {
+                setTargetFragment(this@CrimeFragment, REQUEST_DATE)
+                show(this@CrimeFragment.requireActivity().supportFragmentManager, DIALOG_DATE)
+            }
+        }
+
+        timeButton.setOnClickListener {
+            TimePickerFragment.newInstance(crime.date).apply {
+                setTargetFragment(this@CrimeFragment, REQUEST_TIME)
+                show(this@CrimeFragment.requireActivity().supportFragmentManager, DIALOG_TIME)
+            }
+        }
     }
 
     override fun onStop() {
@@ -119,6 +136,11 @@ class CrimeFragment : Fragment() {
         super.onStop()
         // When we destroy the view, save any changes to the crime to the database
         crimeDetailViewModel.saveCrime(crime)
+    }
+
+    override fun onDateSelected(date: Date) {
+        crime.date = date
+        updateUI()
     }
 
     // Code for updating the text fields and text box

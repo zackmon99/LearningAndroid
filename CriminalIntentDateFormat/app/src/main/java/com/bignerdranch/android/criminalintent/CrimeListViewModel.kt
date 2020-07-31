@@ -10,4 +10,8 @@ class CrimeListViewModel: ViewModel() {
     // get the list of crimes by calling getCrimes on the repository which
     // in turn calls getCrimes on the DAO
     val crimesListLiveData = crimeRepository.getCrimes()
+
+    fun addCrime(crime: Crime) {
+        crimeRepository.addCrime(crime)
+    }
 }
