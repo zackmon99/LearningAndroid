@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import java.io.File
 import java.util.*
 
 class CrimeDetailViewModel: ViewModel() {
@@ -43,5 +44,10 @@ class CrimeDetailViewModel: ViewModel() {
     // this calls updateCrime on the DAO
     fun saveCrime(crime: Crime) {
         crimeRepository.updateCrime(crime)
+    }
+
+    // call getPhotoFile on crimeRepository
+    fun getPhotoFile(crime: Crime): File {
+        return crimeRepository.getPhotoFile(crime)
     }
 }

@@ -173,7 +173,7 @@ class CrimeListFragment: Fragment() {
 
     private fun updateUI(crimes: List<Crime>) {
         adapter?.submitList(crimes)
-        if (crimes.size == 0) {
+        if (crimes.isEmpty()) {
             crimeRecyclerView.visibility = View.GONE
             noContentLayout.visibility = View.VISIBLE
         }

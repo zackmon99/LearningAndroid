@@ -5,6 +5,9 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.room.Room
 import com.bignerdranch.android.criminalintent.database.CrimeDatabase
+import com.bignerdranch.android.criminalintent.database.migration_1_2
+import com.bignerdranch.android.criminalintent.database.migration_2_3
+import java.io.File
 import java.lang.IllegalStateException
 import java.util.*
 import java.util.concurrent.Executors
@@ -24,7 +27,8 @@ class CrimeRepository private constructor(context: Context) {
         context.applicationContext,
         CrimeDatabase::class.java,
         DATABASE_NAME
-    ).build()
+    ).addMigrations(migration_1_2).addMigrations(migration_2_3) //Migrate database
+        .build()
 
     // Create the DAO
     private val crimeDao = database.crimeDao()
@@ -33,6 +37,8 @@ class CrimeRepository private constructor(context: Context) {
     // Only queries automatically run in background threads when they return
     // LiveData objects
     private val executor = Executors.newSingleThreadExecutor()
+
+    private val filesDir = context.applicationContext.filesDir
 
     // Use the repository to call the functions on the DAO
     fun getCrimes(): LiveData<List<Crime>> {
@@ -55,6 +61,8 @@ class CrimeRepository private constructor(context: Context) {
             crimeDao.addCrime(crime)
         }
     }
+
+    fun getPhotoFile(crime: Crime): File = File(filesDir, crime.photoFileName)
 
     // Set up companion object to make singleton
     companion object {
