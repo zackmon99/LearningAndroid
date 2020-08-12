@@ -8,6 +8,7 @@ import android.graphics.Matrix
 import android.graphics.Point
 import android.media.ExifInterface
 import android.os.Build
+import android.util.Log
 import kotlin.math.roundToInt
 
 
@@ -85,6 +86,5 @@ fun getScaledBitmap(path: String, activity: Activity, context: Context): Bitmap 
     } else {
         activity.windowManager.defaultDisplay.getSize(size)
     }
-
     return getScaledBitmap(path, size.x, size.y)
 }

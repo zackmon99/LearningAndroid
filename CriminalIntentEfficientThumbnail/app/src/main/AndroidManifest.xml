@@ -3,7 +3,6 @@
     package="com.bignerdranch.android.criminalintent">
     <uses-feature android:name="android.hardware.camera"
         android:required="false" />
-    // Setting up user permissions
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <application
         android:name=".CriminalIntentApplication"
@@ -20,7 +19,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        // Setting up file storage for crime photos
         <provider
             android:authorities="com.bignerdranch.android.criminalintent.fileprovider"
             android:name="androidx.core.content.FileProvider"

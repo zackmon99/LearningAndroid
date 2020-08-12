@@ -200,6 +200,7 @@ class CrimeListFragment: Fragment() {
 
         // bind sets the values in the CrimeHolder
         fun bind(crime: Crime) {
+            Log.d(TAG, "BIND")
             this.crime = crime
 
             titleTextView.text = this.crime.title

@@ -63,6 +63,7 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
     private lateinit var callSuspectButton: Button
     private lateinit var photoButton: ImageButton
     private lateinit var photoView: ImageView
+    private lateinit var viewTreeObserver: ViewTreeObserver
 
 
 
@@ -110,6 +111,7 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
         callSuspectButton = view.findViewById(R.id.call_suspect) as Button
         photoButton = view.findViewById(R.id.crime_camera) as ImageButton
         photoView = view.findViewById(R.id.crime_photo) as ImageView
+
 
         return view
     }
@@ -362,13 +364,23 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
             suspectButton.text = crime.suspect
         }
 
-        updatePhotoView()
-
+        viewTreeObserver = photoView.viewTreeObserver
+        // Sometimes view does not change for SOME reason
+        // Go ahead and force a GlobalLayoutChange
+        photoView.requestLayout()
+        if (viewTreeObserver.isAlive) {
+            viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+                override fun onGlobalLayout() {
+                    photoView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                    updatePhotoView()
+                }
+            })
+        }
     }
 
     private fun updatePhotoView() {
             if (photoFile.exists()) {
-                val bitmap = getScaledBitmap(photoFile.path, requireActivity(), requireContext())
+                val bitmap = getScaledBitmap(photoFile.path, photoView.width, photoView.height)
                 photoView.setImageBitmap(bitmap)
             } else {
                 photoView.setImageDrawable(null)
