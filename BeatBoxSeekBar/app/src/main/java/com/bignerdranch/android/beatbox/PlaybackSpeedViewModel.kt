@@ -15,7 +15,4 @@ class PlaybackSpeedViewModel(private val beatBox: BeatBox): BaseObservable() {
     val percent: Int?
         get() = speed
 
-    fun onSpeedChanged() {
-
-    }
 }

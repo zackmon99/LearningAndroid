@@ -1,17 +1,18 @@
 package com.bignerdranch.android.beatbox
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.ViewGroup
 import android.widget.SeekBar
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bignerdranch.android.beatbox.databinding.ActivityMainBinding
 import com.bignerdranch.android.beatbox.databinding.ListItemSoundBinding
-import java.nio.channels.SeekableByteChannel
 
+private const val TAG = "MainActivity"
 class MainActivity : AppCompatActivity() {
 
 
@@ -23,7 +24,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        Log.d(TAG, "OnCreate")
 
         val binding: ActivityMainBinding =
             DataBindingUtil.setContentView(this, R.layout.activity_main)
@@ -37,13 +38,15 @@ class MainActivity : AppCompatActivity() {
         binding.viewModel = PlaybackSpeedViewModel(beatBoxViewModel.beatBox)
 
         binding.seekBar.apply {
+            Log.d(TAG, "SETTING UP SEEK BAR")
             max = 200
             setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                    val realProgress = if(progress >= 1) {
+                    Log.d(TAG, "PROGRESS BAR CHANGED TO $progress")
+                    val realProgress = if(progress >= 13) {
                         progress
                     } else {
-                        1
+                        13
                     }
                     binding.viewModel?.speed = realProgress
                     binding.executePendingBindings()
@@ -57,13 +60,10 @@ class MainActivity : AppCompatActivity() {
 
                 }
             })
-
-            binding.viewModel?.speed = 100
         }
-    }
+        binding.viewModel?.speed = 100
+        binding.executePendingBindings()
 
-    override fun onDestroy() {
-        super.onDestroy()
     }
 
 
