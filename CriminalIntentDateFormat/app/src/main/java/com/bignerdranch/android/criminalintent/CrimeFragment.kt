@@ -70,6 +70,7 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
     // Get a new or existing ViewModel that will persist
     // after fragment is destroyed
     private val crimeDetailViewModel: CrimeDetailViewModel by lazy {
+        Log.d(TAG, "TEST!!!!!!!!!")
         val factory = CrimeDetailViewModelFactory()
         ViewModelProvider(this@CrimeFragment, factory).get(CrimeDetailViewModel::class.java)
     }
